@@ -1,0 +1,18 @@
+.env
+backup.sql
+# Save this as .gitignore (it already exists in your project: merge these lines in)
+.env
+.venv/
+__pycache__/
+*.pyc
+backup.sql
+*.db
+test_tmp*.db
+.vscode/
+.env
+.venv/
+__pycache__/
+*.pyc
+backup.sql
+*.db
+.vscode/
