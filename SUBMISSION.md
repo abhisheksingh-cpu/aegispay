@@ -2,7 +2,7 @@
 
 **Tagline:** Turn a payment outage into evidence, an explanation, and a fair, idempotent PayPal refund.
 
-**Links:** Code: https://github.com/abhisheksingh-cpu/aegispay | Demo video: [YouTube URL] | Built by: Singh Abhishek Jiutbandhan (solo)
+**Links:** Code: [GitHub URL] | Demo video: [YouTube URL] | Built by: [YOUR NAME] (solo)
 
 ## The problem
 SLA credits are usually claim-based. After an outage, customers must notice it, file a request, and prove they were affected, even though the provider already has the data. That costs time, causes disputes, and erodes trust.
@@ -15,12 +15,12 @@ AegisPay watches a payment service through customer payment attempts and closes 
 3. **Explains.** An LLM (Groq, `openai/gpt-oss-20b`) writes a plain-English diagnosis as JSON. The output is validated: the schema, an allowed list of causes, and every cited attempt ID must exist in the evidence. If validation fails, a rule-based diagnosis is stored instead. If the LLM and the rules disagree, confidence is capped at low and the diagnosis is flagged for human review.
 4. **Compensates.** Versioned, deterministic rules turn incident severity into a credit amount. The LLM never sees or decides money.
 5. **Settles.** After an operator approves, each credit is issued as a PayPal sandbox partial refund with an idempotency key. Running settlement again changes nothing.
-6. **Shows everything.** A live timeline page displays the status history, evidence, diagnosis, and refunds, with real PayPal sandbox refunds clearly separated from mock test refunds.
+6. **Shows everything.** A multi-page dashboard shows live service status, the stream of payment attempts, every incident, and for each incident its progress, evidence, diagnosis, and refunds. Real PayPal sandbox refunds are clearly separated from mock test refunds, and money moves only when an operator clicks approve.
 
 ## What I verified
 - **End-to-end run:** one incident recorded 32 failed attempts and was rated critical (10% credit under the demo rules). The affected customer holding a real captured $10 sandbox payment received a **real $1.00 PayPal sandbox refund**. A second affected customer, on a mock test payment, received a $2.00 refund labelled `mock_refund`. A third customer with no failed attempts received nothing.
 - **Idempotency:** running the settlement a second time returned the identical refund IDs and sent nothing new to PayPal.
-- **Tests:** three suites (detection, settlement, and AI diagnosis, 20 checks in total) pass against a fake PayPal and a fake LLM. They cover de-duplication, recovery, evidence-based linking, timeout handling, permanent errors, mock-payment isolation, and rejection of invalid LLM output.
+- **Tests:** four suites (detection, settlement, AI diagnosis, and the dashboard API; 26 checks in total) pass against a fake PayPal and a fake LLM. They cover de-duplication, recovery, evidence-based linking, timeout handling, permanent errors, mock-payment isolation, and rejection of invalid LLM output.
 - **AI evaluation:** on 5 hand-written scenarios, the rule baseline was correct 5/5 and the LLM 4/5, using 1,973 tokens in total (about 400 per diagnosis). The miss was a mixed-failure case where the LLM was confidently wrong, because validation checks format and not truth. That led to the disagreement flag described above. This is a small sample, and the baseline was written with these scenarios in mind, so it is a sanity check and not statistical proof.
 
 ## How PayPal and AI are used
@@ -46,4 +46,4 @@ Python, FastAPI, PostgreSQL, SQLAlchemy, Docker Compose, PayPal Orders and Refun
 Kubernetes deployment with least-privilege permissions, bounded automatic remediation (restart or rollback) that acts only when the rules and the AI agree, independent recovery verification, and a larger evaluation set.
 
 ## Try it
-See the README for setup. In short: `docker compose up -d --build`, `python init_db.py`, `python seed_payments.py --mock 2`, then run `watcher.py`, `fault.py down`, `fault.py none`, and `settle_incident.py <id>`. Open `http://localhost:8000/ui` for the timeline.
+See the README for setup. In short: `docker compose up -d --build`, `python init_db.py`, `python seed_payments.py --mock 2`, then run `watcher.py`, `fault.py down`, `fault.py none`, and `settle_incident.py <id>`. Open `http://localhost:8000/ui` for the dashboard.

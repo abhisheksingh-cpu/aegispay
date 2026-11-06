@@ -19,7 +19,7 @@ flowchart LR
   E --> L[LLM diagnosis<br/>validated, rules fallback]
   E --> K[Compensation rules<br/>deterministic, versioned]
   K -->|operator approves| S[Settlement<br/>idempotent PayPal refund]
-  D --> U[Timeline page /ui]
+  D --> U[Dashboard /ui]
   L --> U
   S --> U
 ```
@@ -54,12 +54,14 @@ python explain_incident.py <id>    # AI diagnosis
 python settle_incident.py <id>     # operator approval: compensation + refunds
 ```
 
-Open http://localhost:8000/ui for the live incident timeline and http://localhost:8000/docs for the API.
+Open http://localhost:8000/ui for the dashboard: **Overview** (live service status, key numbers, live attempts, demo controls to break or recover the simulated service), **Incidents**, **Incident detail** (progress, evidence, AI diagnosis, refunds, with buttons to run the AI explanation and to approve and refund) and **How it works**. The API docs are at http://localhost:8000/docs.
+
+The dashboard buttons are an alternative to the command-line steps above. `python watcher.py` still has to run to generate customer traffic.
 
 ## Tests (no network needed)
 
 ```bash
-python test_detection.py && python test_settlement.py && python test_explain.py
+python test_detection.py && python test_settlement.py && python test_explain.py && python test_ui_api.py
 ```
 
 They use a throwaway SQLite database and a fake PayPal/LLM. They cover de-duplication, recovery, evidence linking, refund idempotency, timeout handling, and rejection of invalid LLM output.

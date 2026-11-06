@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 from compensation_rules import COMPENSATION_RATES, calculate_compensation
 from database import get_db
 from evidence import router as evidence_router
+from overview import router as overview_router
+from demo import router as demo_router
 from ui import router as ui_router
 from models import Compensation, Incident, IncidentHistory, IncidentPayment, Payment, Payout
 from settlement import settle
@@ -18,6 +20,8 @@ from settlement import settle
 
 app = FastAPI(title="AegisPay API")
 app.include_router(evidence_router)
+app.include_router(overview_router)
+app.include_router(demo_router)
 app.include_router(ui_router)
 
 
